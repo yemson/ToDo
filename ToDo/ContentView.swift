@@ -12,40 +12,43 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Item.content, ascending: true)],
         animation: .default)
     private var items: FetchedResults<Item>
+    @State private var todoContent: String = ""
 
     var body: some View {
-        NavigationView {
+        VStack {
+            VStack {
+                Text("오늘")
+                    .font(.system(size: 30))
+                Text("01/29, 일")
+            }
+            HStack {
+                TextField("이곳에 할 일을 입력해주세요", text: $todoContent)
+                    .padding(.horizontal)
+                Button(/*@START_MENU_TOKEN@*/"Button"/*@END_MENU_TOKEN@*/) {
+                    addItem()
+                }
+            }
             List {
                 ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
-                    }
+                    Text(item.content ?? "")
+                        .font(.system(size: 20))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .listRowSeparator(.hidden)
                 }
                 .onDelete(perform: deleteItems)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
+            .listStyle(PlainListStyle())
+            .environment(\.defaultMinListRowHeight, 70)
         }
     }
 
     private func addItem() {
         withAnimation {
             let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+            newItem.content = todoContent
 
             do {
                 try viewContext.save()
@@ -73,13 +76,6 @@ struct ContentView: View {
         }
     }
 }
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
