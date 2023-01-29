@@ -7,16 +7,15 @@
 
 import SwiftUI
 import CoreData
-import UIKit
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.content, ascending: true)],
         animation: .default)
     private var items: FetchedResults<Item>
     @State private var todoContent: String = ""
+    @State private var showAddTodoModal = false
     
     var body: some View {
         ZStack {
@@ -26,6 +25,7 @@ struct ContentView: View {
                 HStack {
                     Button(action: {}) {
                         Label("", systemImage: "gearshape")
+                            .labelStyle(IconOnlyLabelStyle())
                             .font(.system(size: 25))
                             .foregroundColor(Color("SecondColor"))
                             .padding()
@@ -33,34 +33,54 @@ struct ContentView: View {
                     Spacer()
                     VStack {
                         Text("오늘")
-                            .font(.system(size: 30))
+                            .font(.system(size: 26))
+                            .fontWeight(.semibold)
                             .foregroundColor(Color("SecondColor"))
                         Text(Formatter.weekDay.string(from: Date()))
                             .font(.system(size: 13))
+                            .fontWeight(.medium)
                             .foregroundColor(Color("AccentColor"))
                     }
                     Spacer()
                     Button(action: {}) {
-                        Label("", systemImage: "plus")
+                        Label("", systemImage: "trash")
+                            .labelStyle(IconOnlyLabelStyle())
                             .font(.system(size: 25))
                             .foregroundColor(Color("SecondColor"))
                             .padding()
                     }
                 }
-                .padding(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
-                List {
-                    ForEach(items) { item in
-                        Text(item.content ?? "")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color("SecondColor"))
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .listRowBackground(Color("PrimaryColor"))
-                            .listRowSeparator(.hidden)
+                .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
+                TextField("여기에 할 일을 적어주세용", text: $todoContent)
+                    .foregroundColor(Color("SecondColor"))
+                    .padding(EdgeInsets(top: 5, leading: 20, bottom: 0, trailing: 20))
+                    .onSubmit {
+                        addItem()
                     }
-                    .onDelete(perform: deleteItems)
+                    .submitLabel(.done)
+                Divider()
+                    .overlay(Color("SecondColor"))
+                    .padding(EdgeInsets(top: 5, leading: 15, bottom: 0, trailing: 15))
+                if items.isEmpty {
+                    Spacer()
+                    Text("오늘은 할 일이 없으신가요?")
+                        .foregroundColor(Color("SecondColor"))
+                    Spacer()
+                } else {
+                    List {
+                        ForEach(items) { item in
+                            Text(item.content ?? "")
+                                .font(.system(size: 20))
+                                .foregroundColor(Color("SecondColor"))
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .listRowBackground(Color("PrimaryColor"))
+                                .listRowSeparator(.hidden)
+                        }
+                        .onDelete(perform: deleteItems)
+                    }
+                    .listStyle(.plain)
+                    .environment(\.defaultMinListRowHeight, 70)
                 }
-                .listStyle(PlainListStyle())
-                .environment(\.defaultMinListRowHeight, 70)
             }
         }
     }
