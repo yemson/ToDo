@@ -72,11 +72,30 @@ struct ContentView: View {
                             Text(item.content ?? "")
                                 .font(.system(size: 20))
                                 .foregroundColor(Color("SecondColor"))
+                                .strikethrough(item.state ? true : false)
+                                .fontWeight(item.star ? .bold : .light)
                                 .frame(maxWidth: .infinity, alignment: .center)
-                                .listRowBackground(Color("PrimaryColor"))
-                                .listRowSeparator(.hidden)
+                                .onTapGesture {
+                                    updateItems(item: item)
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(action: {deleteItems(item: item)}) {
+                                        Label("", systemImage: "trash")
+                                            .labelStyle(IconOnlyLabelStyle())
+                                    }
+                                }
+                                .tint(Color("AccentColor"))
+                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                    Button(action: {updateStarItems(item: item)}) {
+                                        Label("", systemImage: item.star ? "star.fill" : "star")
+                                            .labelStyle(IconOnlyLabelStyle())
+                                            .environment(\.symbolVariants, .none)
+                                    }
+                                }
+                                .tint(Color("SecondColor"))
                         }
-                        .onDelete(perform: deleteItems)
+                        .listRowBackground(Color("PrimaryColor"))
+                        .listRowSeparator(.hidden)
                     }
                     .listStyle(.plain)
                     .environment(\.defaultMinListRowHeight, 70)
@@ -89,28 +108,49 @@ struct ContentView: View {
         withAnimation {
             let newItem = Item(context: viewContext)
             newItem.content = todoContent
+            newItem.state = false
+            newItem.star = false
             
             do {
                 try viewContext.save()
                 todoContent = ""
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
     
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteItems(item: Item) {
         withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-            
+            viewContext.delete(item)
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
+    }
+    
+    private func updateItems(item: Item) {
+        withAnimation {
+            item.state = !item.state
+            do {
+                try viewContext.save()
+            } catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
+    }
+    
+    private func updateStarItems(item: Item) {
+        withAnimation {
+            item.star = !item.star
+            do {
+                try viewContext.save()
+            } catch {
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }

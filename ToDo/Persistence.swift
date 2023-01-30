@@ -16,6 +16,8 @@ struct PersistenceController {
         for _ in 0..<1 {
             let newItem = Item(context: viewContext)
             newItem.content = "asdf"
+            newItem.state = false
+            newItem.star = false
         }
         do {
             try viewContext.save()
