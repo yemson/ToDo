@@ -7,9 +7,11 @@
 
 import SwiftUI
 import CoreData
+import CoreLocation
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.scenePhase) var scenePhase
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.content, ascending: true)],
         animation: .default)
@@ -17,6 +19,8 @@ struct ContentView: View {
     @State private var todoContent: String = ""
     @State private var showAddTodoModal = false
     @State private var weatherIcon: String = ""
+    @ObservedObject var weather = WeatherData()
+    @State private var keyboardHeight: CGFloat = 0
     
     var body: some View {
         NavigationView {
@@ -102,12 +106,20 @@ struct ContentView: View {
                         .listStyle(.plain)
                         .environment(\.defaultMinListRowHeight, 70)
                     }
-                    Label("", systemImage: weatherIcon)
+                    Label("", systemImage: weather.weatherIcon)
                         .labelStyle(IconOnlyLabelStyle())
-                        .font(.system(size: 64))
+                        .font(.system(size: 60))
                         .foregroundColor(Color("SecondColor"))
                         .padding(EdgeInsets(top: 0, leading: 0, bottom: 30, trailing: 0))
                 }
+            }
+            .ignoresSafeArea(.keyboard)
+        }
+        .onAppear(perform : UIApplication.shared.hideKeyboard)
+        .onAppear(perform: weather.getData)
+        .onChange(of: scenePhase) { newScenePhase in
+            if newScenePhase == .active {
+                weather.getData()
             }
         }
     }
@@ -163,42 +175,6 @@ struct ContentView: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
-    }
-    
-    func loadData() {
-        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=London&appid=c1016e89a647753de947e7f9c4e7ca2a") else {
-            fatalError("Invalid URL")
-        }
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            
-            let result = try? JSONDecoder().decode(WeatherResponse.self, from: data)
-            if let result = result {
-                result.weather.forEach {
-                    print($0.description)
-                    if ($0.description == "clear sky") {
-                        weatherIcon = "sun.max"
-                    } else if ($0.description == "few clouds") {
-                        weatherIcon = "cloud.sun"
-                    } else if ($0.description == "scattered clouds" || $0.description == "broken clouds" || $0.description == "overcast clouds") {
-                        weatherIcon = "cloud"
-                    } else if ($0.description == "shower rain") {
-                        weatherIcon = "cloud.drizzle"
-                    } else if ($0.description == "rain") {
-                        weatherIcon = "cloud.rain"
-                    } else if ($0.description == "thunderstorm") {
-                        weatherIcon = "cloud.bolt"
-                    } else if ($0.description == "snow") {
-                        weatherIcon = "cloud.snow"
-                    } else if ($0.description == "mist") {
-                        weatherIcon = "cloud.fog"
-                    }
-                }
-            }
-            print(weatherIcon)
-        }.resume()
     }
 }
 
