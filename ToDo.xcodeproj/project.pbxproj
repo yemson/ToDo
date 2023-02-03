@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		87343223298BE8AF00CB8F7B /* TodoTrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87343222298BE8AF00CB8F7B /* TodoTrashView.swift */; };
 		87343227298BE8FE00CB8F7B /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87343226298BE8FE00CB8F7B /* SettingView.swift */; };
 		87343229298BF55900CB8F7B /* Weather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87343228298BF55900CB8F7B /* Weather.swift */; };
+		8734322E298CF44300CB8F7B /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8734322D298CF44300CB8F7B /* TrashView.swift */; };
 		87D03D3229866C2200179600 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D03D3129866C2100179600 /* Extension.swift */; };
 		87FB16502986412400DBFD2A /* ToDoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FB164F2986412400DBFD2A /* ToDoApp.swift */; };
 		87FB16522986412400DBFD2A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FB16512986412400DBFD2A /* ContentView.swift */; };
@@ -20,9 +20,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		87343222298BE8AF00CB8F7B /* TodoTrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoTrashView.swift; sourceTree = "<group>"; };
 		87343226298BE8FE00CB8F7B /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		87343228298BF55900CB8F7B /* Weather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weather.swift; sourceTree = "<group>"; };
+		8734322D298CF44300CB8F7B /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
 		87D03D3129866C2100179600 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		87FB164C2986412400DBFD2A /* ToDo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		87FB164F2986412400DBFD2A /* ToDoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoApp.swift; sourceTree = "<group>"; };
@@ -65,12 +65,12 @@
 			children = (
 				87FB164F2986412400DBFD2A /* ToDoApp.swift */,
 				87FB16512986412400DBFD2A /* ContentView.swift */,
-				87343222298BE8AF00CB8F7B /* TodoTrashView.swift */,
+				8734322D298CF44300CB8F7B /* TrashView.swift */,
 				87343226298BE8FE00CB8F7B /* SettingView.swift */,
 				87343228298BF55900CB8F7B /* Weather.swift */,
-				87FB16532986412500DBFD2A /* Assets.xcassets */,
 				87FB16582986412500DBFD2A /* Persistence.swift */,
 				87D03D3129866C2100179600 /* Extension.swift */,
+				87FB16532986412500DBFD2A /* Assets.xcassets */,
 				87FB165A2986412500DBFD2A /* ToDo.xcdatamodeld */,
 				87FB16552986412500DBFD2A /* Preview Content */,
 			);
@@ -157,12 +157,12 @@
 			files = (
 				87343229298BF55900CB8F7B /* Weather.swift in Sources */,
 				87D03D3229866C2200179600 /* Extension.swift in Sources */,
-				87343223298BE8AF00CB8F7B /* TodoTrashView.swift in Sources */,
 				87FB16592986412500DBFD2A /* Persistence.swift in Sources */,
 				87343227298BE8FE00CB8F7B /* SettingView.swift in Sources */,
 				87FB16522986412400DBFD2A /* ContentView.swift in Sources */,
 				87FB16502986412400DBFD2A /* ToDoApp.swift in Sources */,
 				87FB165C2986412500DBFD2A /* ToDo.xcdatamodeld in Sources */,
+				8734322E298CF44300CB8F7B /* TrashView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

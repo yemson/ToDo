@@ -48,7 +48,7 @@ struct ContentView: View {
                                 .foregroundColor(Color("AccentColor"))
                         }
                         Spacer()
-                        NavigationLink(destination: TodoTrashView()) {
+                        NavigationLink(destination: TrashView()) {
                             Label("", systemImage: "trash")
                                 .labelStyle(IconOnlyLabelStyle())
                                 .font(.system(size: 25))
