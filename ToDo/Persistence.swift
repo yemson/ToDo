@@ -19,6 +19,7 @@ struct PersistenceController {
             newItem.state = false
             newItem.star = false
             newItem.created = Date()
+            newItem.trash = false
         }
         do {
             try viewContext.save()

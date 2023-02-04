@@ -17,10 +17,10 @@ struct ContentView: View {
         animation: .default)
     private var items: FetchedResults<Item>
     @State private var todoContent: String = ""
-    @State private var showAddTodoModal = false
     @State private var weatherIcon: String = ""
     @ObservedObject var weather = WeatherData()
     @State private var keyboardHeight: CGFloat = 0
+    @State private var trashModal = false
     
     var body: some View {
         NavigationView {
@@ -48,12 +48,17 @@ struct ContentView: View {
                                 .foregroundColor(Color("AccentColor"))
                         }
                         Spacer()
-                        NavigationLink(destination: TrashView()) {
+                        Button(action: {
+                            self.trashModal = true
+                        }) {
                             Label("", systemImage: "trash")
                                 .labelStyle(IconOnlyLabelStyle())
                                 .font(.system(size: 25))
                                 .foregroundColor(Color("SecondColor"))
                                 .padding()
+                        }
+                        .sheet(isPresented: self.$trashModal) {
+                            TrashView()
                         }
                     }
                     .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
@@ -75,31 +80,33 @@ struct ContentView: View {
                     } else {
                         List {
                             ForEach(items) { item in
-                                Text(item.content ?? "")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(Color("SecondColor"))
-                                    .strikethrough(item.state ? true : false)
-                                    .fontWeight(item.star ? .bold : .light)
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .onTapGesture {
-                                        updateItems(item: item)
-                                    }
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(action: {deleteItems(item: item)}) {
-                                            Label("", systemImage: "trash")
-                                                .labelStyle(IconOnlyLabelStyle())
+                                if item.trash == false {
+                                    Text(item.content ?? "")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(Color("SecondColor"))
+                                        .strikethrough(item.state ? true : false)
+                                        .fontWeight(item.star ? .bold : .light)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                        .onTapGesture {
+                                            updateItems(item: item)
                                         }
-                                    }
-                                    .tint(Color("AccentColor"))
-                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                        Button(action: {updateStarItems(item: item)}) {
-                                            Label("", systemImage: item.star ? "star.fill" : "star")
-                                                .labelStyle(IconOnlyLabelStyle())
-                                                .environment(\.symbolVariants, .none)
+                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                            Button(action: {trashItems(item: item)}) {
+                                                Label("", systemImage: "trash")
+                                                    .labelStyle(IconOnlyLabelStyle())
+                                            }
                                         }
-                                        
-                                    }
-                                    .tint(Color("SecondColor"))
+                                        .tint(Color("AccentColor"))
+                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                            Button(action: {updateStarItems(item: item)}) {
+                                                Label("", systemImage: item.star ? "star.fill" : "star")
+                                                    .labelStyle(IconOnlyLabelStyle())
+                                                    .environment(\.symbolVariants, .none)
+                                            }
+                                            
+                                        }
+                                        .tint(Color("SecondColor"))
+                                }
                             }
                             .listRowBackground(Color("PrimaryColor"))
                             .listRowSeparator(.hidden)
@@ -132,6 +139,7 @@ struct ContentView: View {
             newItem.state = false
             newItem.star = false
             newItem.created = Date()
+            newItem.trash = false
             print(newItem.created ?? "x")
             do {
                 try viewContext.save()
@@ -143,9 +151,9 @@ struct ContentView: View {
         }
     }
     
-    private func deleteItems(item: Item) {
+    private func trashItems(item: Item) {
         withAnimation {
-            viewContext.delete(item)
+            item.trash = !item.trash
             do {
                 try viewContext.save()
             } catch {
