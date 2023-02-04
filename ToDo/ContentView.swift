@@ -13,7 +13,7 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.scenePhase) var scenePhase
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.content, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Item.created, ascending: false)],
         animation: .default)
     private var items: FetchedResults<Item>
     @State private var todoContent: String = ""
@@ -57,7 +57,7 @@ struct ContentView: View {
                         }
                     }
                     .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
-                    TextField("여기에 할 일을 적어주세용", text: $todoContent)
+                    TextField("여기에 할 일을 적어주세요", text: $todoContent)
                         .foregroundColor(Color("SecondColor"))
                         .padding(EdgeInsets(top: 5, leading: 20, bottom: 0, trailing: 20))
                         .onSubmit {
@@ -97,6 +97,7 @@ struct ContentView: View {
                                                 .labelStyle(IconOnlyLabelStyle())
                                                 .environment(\.symbolVariants, .none)
                                         }
+                                        
                                     }
                                     .tint(Color("SecondColor"))
                             }
@@ -130,7 +131,8 @@ struct ContentView: View {
             newItem.content = todoContent
             newItem.state = false
             newItem.star = false
-            
+            newItem.created = Date()
+            print(newItem.created ?? "x")
             do {
                 try viewContext.save()
                 todoContent = ""

@@ -297,7 +297,7 @@
 				INFOPLIST_FILE = ToDo/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "투두";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "후아함앟ㅁㄴㅇ";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
@@ -333,7 +333,7 @@
 				INFOPLIST_FILE = ToDo/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "투두";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "후아함앟ㅁㄴㅇ";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
