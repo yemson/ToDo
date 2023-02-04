@@ -68,6 +68,7 @@ struct TrashView: View {
                     }
                     .listStyle(.plain)
                     .environment(\.defaultMinListRowHeight, 70)
+                    .animation(nil, value: UUID())
                 }
             }
         }

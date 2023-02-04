@@ -21,6 +21,8 @@ struct ContentView: View {
     @ObservedObject var weather = WeatherData()
     @State private var keyboardHeight: CGFloat = 0
     @State private var trashModal = false
+    @State private var todoTime = Date()
+    @State private var timeIsOn = false
     
     var body: some View {
         NavigationView {
@@ -62,16 +64,31 @@ struct ContentView: View {
                         }
                     }
                     .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
-                    TextField("여기에 할 일을 적어주세요", text: $todoContent)
-                        .foregroundColor(Color("SecondColor"))
-                        .padding(EdgeInsets(top: 5, leading: 20, bottom: 0, trailing: 20))
-                        .onSubmit {
-                            addItem()
+                    HStack {
+                        TextField("여기에 할 일을 적어주세요", text: $todoContent)
+                            .foregroundColor(Color("SecondColor"))
+                            .onSubmit {
+                                addItem()
+                            }
+                            .submitLabel(.done)
+                        Button(action: {
+                            timeIsOn = !timeIsOn
+                        }) {
+                            Label("", systemImage: timeIsOn ? "clock.fill" : "clock")
+                                .labelStyle(IconOnlyLabelStyle())
+                                .font(.system(size: 22))
                         }
-                        .submitLabel(.done)
+                    }
+                    .padding()
+                    if timeIsOn {
+                        DatePicker(selection: $todoTime, displayedComponents: [.date, .hourAndMinute], label: { Text("시간 지정") })
+                            .datePickerStyle(.automatic)
+                            .foregroundColor(Color("SecondColor"))
+                            .environment(\.locale, Locale.init(identifier: "ko"))
+                            .padding()
+                    }
                     Divider()
-                        .overlay(Color("SecondColor"))
-                        .padding(EdgeInsets(top: 5, leading: 15, bottom: 0, trailing: 15))
+                        .padding(EdgeInsets(top: 0, leading: 15, bottom: 0, trailing: 15))
                     if items.isEmpty {
                         Spacer()
                         Text("오늘은 할 일이 없으신가요?")
@@ -81,31 +98,39 @@ struct ContentView: View {
                         List {
                             ForEach(items) { item in
                                 if item.trash == false {
-                                    Text(item.content ?? "")
-                                        .font(.system(size: 20))
-                                        .foregroundColor(Color("SecondColor"))
-                                        .strikethrough(item.state ? true : false)
-                                        .fontWeight(item.star ? .bold : .light)
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                        .onTapGesture {
-                                            updateItems(item: item)
-                                        }
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                            Button(action: {trashItems(item: item)}) {
-                                                Label("", systemImage: "trash")
-                                                    .labelStyle(IconOnlyLabelStyle())
+                                    VStack {
+                                        Text(item.content ?? "")
+                                            .font(.system(size: 20))
+                                            .foregroundColor(Color("SecondColor"))
+                                            .strikethrough(item.state ? true : false)
+                                            .fontWeight(item.star ? .bold : .light)
+                                            .frame(maxWidth: .infinity, alignment: .center)
+                                            .onTapGesture {
+                                                updateItems(item: item)
                                             }
-                                        }
-                                        .tint(Color("AccentColor"))
-                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                            Button(action: {updateStarItems(item: item)}) {
-                                                Label("", systemImage: item.star ? "star.fill" : "star")
-                                                    .labelStyle(IconOnlyLabelStyle())
-                                                    .environment(\.symbolVariants, .none)
+                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                                Button(action: {trashItems(item: item)}) {
+                                                    Label("", systemImage: "trash")
+                                                        .labelStyle(IconOnlyLabelStyle())
+                                                }
                                             }
-                                            
-                                        }
+                                            .tint(Color("AccentColor"))
+                                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                                Button(action: {updateStarItems(item: item)}) {
+                                                    Label("", systemImage: item.star ? "star.fill" : "star")
+                                                        .labelStyle(IconOnlyLabelStyle())
+                                                        .environment(\.symbolVariants, .none)
+                                                }
+                                                
+                                            }
                                         .tint(Color("SecondColor"))
+                                        if item.time != nil {
+                                            Text(Formatter.hour.string(from: item.time ?? Date()))
+                                                .foregroundColor(Color("SecondColor"))
+                                                .font(.system(size: 12))
+                                                .fontWeight(item.star ? .bold : .light)
+                                        }
+                                    }
                                 }
                             }
                             .listRowBackground(Color("PrimaryColor"))
@@ -113,6 +138,7 @@ struct ContentView: View {
                         }
                         .listStyle(.plain)
                         .environment(\.defaultMinListRowHeight, 70)
+                        .animation(nil, value: UUID())
                     }
                     Label("", systemImage: weather.weatherIcon)
                         .labelStyle(IconOnlyLabelStyle())
@@ -133,57 +159,55 @@ struct ContentView: View {
     }
     
     private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.content = todoContent
-            newItem.state = false
-            newItem.star = false
-            newItem.created = Date()
-            newItem.trash = false
-            print(newItem.created ?? "x")
-            do {
-                try viewContext.save()
-                todoContent = ""
-            } catch {
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+        let newItem = Item(context: viewContext)
+        newItem.content = todoContent
+        newItem.state = false
+        newItem.star = false
+        newItem.created = Date()
+        newItem.trash = false
+        if timeIsOn {
+            newItem.time = todoTime
+        } else {
+            newItem.time = nil
+        }
+        print(newItem.time ?? "x")
+        do {
+            try viewContext.save()
+            todoContent = ""
+            timeIsOn = !timeIsOn
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
     
     private func trashItems(item: Item) {
-        withAnimation {
-            item.trash = !item.trash
-            do {
-                try viewContext.save()
-            } catch {
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+        item.trash = !item.trash
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
     
     private func updateItems(item: Item) {
-        withAnimation {
-            item.state = !item.state
-            do {
-                try viewContext.save()
-            } catch {
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+        item.state = !item.state
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
     
     private func updateStarItems(item: Item) {
-        withAnimation {
-            item.star = !item.star
-            do {
-                try viewContext.save()
-            } catch {
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+        item.star = !item.star
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
 }

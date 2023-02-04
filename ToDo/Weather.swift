@@ -51,7 +51,7 @@ class WeatherData: NSObject, ObservableObject, CLLocationManagerDelegate {
                                 self.weatherIcon = "cloud.bolt"
                             } else if ($0.description == "snow") {
                                 self.weatherIcon = "cloud.snow"
-                            } else if ($0.description == "mist") {
+                            } else if ($0.description == "mist" || $0.description == "fog") {
                                 self.weatherIcon = "cloud.fog"
                             }
                         }
