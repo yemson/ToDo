@@ -63,7 +63,7 @@ struct ContentView: View {
                             TrashView()
                         }
                     }
-                    .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
+                    .padding(EdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5))
                     HStack {
                         TextField("여기에 할 일을 적어주세요", text: $todoContent)
                             .foregroundColor(Color("SecondColor"))
@@ -81,7 +81,7 @@ struct ContentView: View {
                     }
                     .padding()
                     if timeIsOn {
-                        DatePicker(selection: $todoTime, displayedComponents: [.date, .hourAndMinute], label: { Text("시간 지정") })
+                        DatePicker(selection: $todoTime, displayedComponents: [.date, .hourAndMinute], label: { Text("알림 지정") })
                             .datePickerStyle(.automatic)
                             .foregroundColor(Color("SecondColor"))
                             .environment(\.locale, Locale.init(identifier: "ko"))

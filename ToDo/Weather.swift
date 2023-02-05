@@ -25,7 +25,7 @@ class WeatherData: NSObject, ObservableObject, CLLocationManagerDelegate {
         let lat = location.coordinate.latitude
         let lon = location.coordinate.longitude
         
-        let apiKey = "c1016e89a647753de947e7f9c4e7ca2a"
+        let apiKey = Storage().API_KEY
         let urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&appid=\(apiKey)&units=metric"
         
         guard let url = URL(string: urlString) else { return }
