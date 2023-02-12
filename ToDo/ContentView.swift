@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreData
 import CoreLocation
+import UserNotifications
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -23,6 +24,7 @@ struct ContentView: View {
     @State private var trashModal = false
     @State private var todoTime = Date()
     @State private var timeIsOn = false
+    @StateObject var delegate = NotificationDelegate()
     
     var body: some View {
         NavigationView {
@@ -68,6 +70,9 @@ struct ContentView: View {
                         TextField("여기에 할 일을 적어주세요", text: $todoContent)
                             .foregroundColor(Color("SecondColor"))
                             .onSubmit {
+                                if timeIsOn {
+                                    createNotification(notiContent: todoContent, notiTime: todoTime)
+                                }
                                 addItem()
                             }
                             .submitLabel(.done)
@@ -121,12 +126,11 @@ struct ContentView: View {
                                                         .labelStyle(IconOnlyLabelStyle())
                                                         .environment(\.symbolVariants, .none)
                                                 }
-                                                
                                             }
-                                        .tint(Color("SecondColor"))
+                                            .tint(Color("SecondColor"))
                                         if item.time != nil {
                                             Text(Formatter.hour.string(from: item.time ?? Date()))
-                                                .foregroundColor(Color("SecondColor"))
+                                                .foregroundColor(item.time?.compare(Date()) == .orderedAscending ? Color("AccentColor") : Color("SecondColor"))
                                                 .font(.system(size: 12))
                                                 .fontWeight(item.star ? .bold : .light)
                                         }
@@ -151,11 +155,35 @@ struct ContentView: View {
         }
         .onAppear(perform : UIApplication.shared.hideKeyboard)
         .onAppear(perform: weather.getData)
+        .onAppear(perform: {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
+                if success {
+                    print("All set!")
+                } else if let error = error {
+                    print(error.localizedDescription)
+                }
+            }
+            
+            UNUserNotificationCenter.current().delegate = delegate
+        })
         .onChange(of: scenePhase) { newScenePhase in
             if newScenePhase == .active {
                 weather.getData()
             }
         }
+    }
+    
+    func createNotification(notiContent: String, notiTime: Date) {
+        let content = UNMutableNotificationContent()
+        content.title = "투두"
+        content.subtitle = notiContent
+        content.sound = .default
+        
+        let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: notiTime)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let request = UNNotificationRequest(identifier: notiContent, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request)
     }
     
     private func addItem() {
@@ -209,6 +237,12 @@ struct ContentView: View {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
+    }
+}
+
+class NotificationDelegate: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.badge, .banner, .sound])
     }
 }
 
